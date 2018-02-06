@@ -194,7 +194,7 @@ template<typename T, size_t buffer_size = 16, typename index_t = uint_fast8_t>
 		{
 			index_t tmpHead = head;
 
-			if ((head - tail) == buffer_size)
+			if ((tmpHead - tail) == buffer_size)
 				return false;
 			else
 			{
@@ -210,7 +210,7 @@ template<typename T, size_t buffer_size = 16, typename index_t = uint_fast8_t>
 		{
 			index_t tmpHead = head;
 
-			if ((head - tail) == buffer_size)
+			if ((tmpHead - tail) == buffer_size)
 				return false;
 			else
 			{
