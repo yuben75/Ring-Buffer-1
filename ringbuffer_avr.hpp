@@ -35,28 +35,27 @@ template<typename T, size_t buffer_size = 16, typename index_t = uint_fast8_t>
 
 		~Ringbuffer() {} // empty - it have to be statically allocated during compilation
 
-		void clear(void)
-		{
+		void producerClear(void){
 			head = tail;
 		}
 
-		bool isEmpty(void)
-		{
+		void consumerClear(void){
+			tail = head;
+		}
+
+		bool isEmpty(void){
 			return readAvailable() == 0;
 		}
 
-		bool isFull(void)
-		{
+		bool isFull(void){
 			return writeAvailable() == 0;
 		}
 
-		index_t readAvailable(void)
-		{
+		index_t readAvailable(void){
 			return (head - tail) & buffer_mask;
 		}
 
-		index_t writeAvailable(void)
-		{
+		index_t writeAvailable(void){
 			return (tail - head - 1) & buffer_mask;
 		}
 
@@ -167,28 +166,27 @@ template<typename T, size_t buffer_size = 16, typename index_t = uint_fast8_t>
 
 		~Ringbuffer_unmasked() {} // empty - it have to be statically allocated during compilation
 
-		void clear(void)
-		{
+		void producerClear(void){
 			head = tail;
 		}
 
-		bool isEmpty(void)
-		{
+		void consumerClear(void){
+			tail = head;
+		}
+
+		bool isEmpty(void){
 			return readAvailable() == 0;
 		}
 
-		bool isFull(void)
-		{
+		bool isFull(void){
 			return writeAvailable() == 0;
 		}
 
-		index_t readAvailable(void)
-		{
+		index_t readAvailable(void){
 			return head - tail;
 		}
 
-		index_t writeAvailable(void)
-		{
+		index_t writeAvailable(void){
 			return buffer_size - (head - tail);
 		}
 
