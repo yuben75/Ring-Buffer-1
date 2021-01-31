@@ -275,7 +275,7 @@
 			 * \param count Number of elements to write from the given buffer
 			 * \return Number of elements written into internal buffer
 			 */
-			size_t writeBuff(const T* buff, size_t count);
+            size_t writeBuff(const T* buff, size_t count, bool is_block=false);
 
 			/*!
 			 * \brief Insert multiple elements into internal buffer without blocking
@@ -302,7 +302,7 @@
 			 * \param count Number of elements to load into the given buffer
 			 * \return Number of elements that were read from internal buffer
 			 */
-			size_t readBuff(T* buff, size_t count);
+            size_t readBuff(T* buff, size_t count, bool is_block=false);
 
 			/*!
 			 * \brief Load multiple elements from internal buffer without blocking
@@ -349,7 +349,7 @@
 		};
 
 	template<typename T, size_t buffer_size, bool fake_tso, size_t cacheline_size, typename index_t>
-		size_t Ringbuffer<T, buffer_size, fake_tso, cacheline_size, index_t>::writeBuff(const T* buff, size_t count)
+        size_t Ringbuffer<T, buffer_size, fake_tso, cacheline_size, index_t>::writeBuff(const T* buff, size_t count, bool is_block)
 		{
 			index_t available = 0;
 			index_t tmp_head = head.load(std::memory_order_relaxed);
@@ -357,9 +357,13 @@
 
 			available = buffer_size - (tmp_head - tail.load(index_acquire_barrier));
 
-			if(available < count) // do not write more than we can
-				to_write = available;
-
+            if(available < count) {// do not write more than we can
+                if (is_block == false){
+                    to_write = available;
+                } else {
+                    return 0;
+                }
+            }
 			// maybe divide it into 2 separate writes
 			for(size_t i = 0; i < to_write; i++)
 				data_buff[tmp_head++ & buffer_mask] = buff[i];
@@ -408,7 +412,7 @@
 		}
 
 	template<typename T, size_t buffer_size, bool fake_tso, size_t cacheline_size, typename index_t>
-		size_t Ringbuffer<T, buffer_size, fake_tso, cacheline_size, index_t>::readBuff(T* buff, size_t count)
+        size_t Ringbuffer<T, buffer_size, fake_tso, cacheline_size, index_t>::readBuff(T* buff, size_t count, bool is_block)
 		{
 			index_t available = 0;
 			index_t tmp_tail = tail.load(std::memory_order_relaxed);
@@ -416,9 +420,13 @@
 
 			available = head.load(index_acquire_barrier) - tmp_tail;
 
-			if(available < count) // do not read more than we can
-				to_read = available;
-
+            if(available < count) { // do not read more than we can
+                if (is_block == false){
+                    to_read = available;
+                } else {
+                    return 0;
+                }
+            }
 			// maybe divide it into 2 separate reads
 			for(size_t i = 0; i < to_read; i++)
 				buff[i] = data_buff[tmp_tail++ & buffer_mask];
