@@ -16,8 +16,8 @@
 #include <limits>
 #include <atomic>
 
-namespace jnk0le
-{
+//namespace jnk0le
+//{
 	/*!
 	 * \brief Lock free, with no wasted slots ringbuffer implementation
 	 *
@@ -330,11 +330,11 @@ namespace jnk0le
 					  std::memory_order_relaxed
 					: std::memory_order_release; // do not update own side before all operations on data_buff committed
 
-			alignas(cacheline_size) std::atomic<index_t> head; //!< head index
-			alignas(cacheline_size) std::atomic<index_t> tail; //!< tail index
+            std::atomic<index_t> head; //alignas(cacheline_size) std::atomic<index_t> head; //!< head index
+            std::atomic<index_t> tail; //alignas(cacheline_size) std::atomic<index_t> tail; //!< tail index
 
 			// put buffer after variables so everything can be reached with short offsets
-			alignas(cacheline_size) T data_buff[buffer_size]; //!< actual buffer
+            T data_buff[buffer_size]; //alignas(cacheline_size) T data_buff[buffer_size]; //!< actual buffer
 
 			// let's assert that no UB will be compiled in
 			static_assert((buffer_size != 0), "buffer cannot be of zero size");
@@ -466,6 +466,6 @@ namespace jnk0le
 			return read;
 		}
 
-} // namespace
+//} // namespace
 
 #endif //RINGBUFFER_HPP
